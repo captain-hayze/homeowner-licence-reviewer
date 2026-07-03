@@ -6,6 +6,7 @@ import { handleMutation } from "@/utils/axios";
 import UploadComponent from "@/components/ui/Upload";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppStore } from "@/providers/store-provider";
+import { setCookie } from "@/utils/cookie-utils";
 
 type Document = {
   name: string;
@@ -51,6 +52,11 @@ export default function Onboarding() {
 	    if (res) {
 		  setUser(res.data.user);
 		  setToken(res.data.authToken);
+		  setCookie("auth_token", res.data.authToken, {
+			maxAge: 60 * 60 * 24 * 7, // 7 days
+			secure: true,
+			sameSite: "lax"
+		  });
 		  setIsAuthenticated(true);
 		  message.success("Onboarding completed successfully");
 		  router.push("/dashboard"); // Redirect to dashboard after successful onboarding

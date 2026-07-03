@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getRequestSignature } from "./get-request-signature";
+import { getAuthToken } from "./get-auth-token";
 
 const API_URL = process.env.NEXT_PUBLIC_BASEURL;
 
@@ -9,8 +10,7 @@ const axiosConfig = axios.create({
 
 axiosConfig?.interceptors?.request?.use(
   function (config) {
-    const appStore = localStorage.getItem("app-store");
-    const token = appStore ? JSON.parse(appStore)?.state?.token : null;
+    const token = getAuthToken();
     const headers = new axios.AxiosHeaders(config.headers || {});
     headers.set("Authorization", "Bearer " + token);
     headers.set("X-Signature", getRequestSignature(
