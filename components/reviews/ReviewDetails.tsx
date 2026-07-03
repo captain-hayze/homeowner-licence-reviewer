@@ -2,16 +2,18 @@
 'use client'
 import React from "react"
 import { Card, Row, Col, Skeleton, Button } from "antd"
-import { useSearchParams } from "next/navigation";
 import { fetcher } from "@/utils/axios";
 import useSWR from "swr";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import DocumentCard from "./DocumentCard";
 import CommentList from "./CommentList";
 
-export default function ReviewDetails() {
-  const searchParams = useSearchParams();
-  const id = searchParams.get('id') || '';
+interface ReviewDetailsProps {
+  reviewId: string;
+}
+
+export default function ReviewDetails({ reviewId }: ReviewDetailsProps) {
+  const id = reviewId;
   const [selectedDocument, setSelectedDocument] = React.useState<ReviewDocument | null>(null);
 
   const { data, isLoading, mutate } = useSWR(`/license-review-user/${id}/assigned-review-request`, fetcher);

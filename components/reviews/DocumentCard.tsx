@@ -58,6 +58,7 @@ export default function DocumentCard(props: DocumentCardProps) {
               : <Image
                   src={rest.documentUrl}
                   alt={rest.planDocument.title}
+                  loading="eager"
                   width={64}
                   height={64}
                   style={{ height: "auto", width: "auto" }}
