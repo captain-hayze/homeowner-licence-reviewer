@@ -40,11 +40,19 @@ type Plan = {
 type Review = {
   id: string;
   title: string;
-  status: "ARCH_REVIEW" | "IN_REVIEW" | "COMPLETED";
+  status: "ARCH_REVIEW" | "IN_REVIEW" | "COMPLETED"  | 'PENDING_DOCUMENTS';
   reviewPlan: Plan;
   requestDocuments: ReviewDocument[];
   comments: ReviewComment[];
   homeOwnerProject: HomeOwnerProject;
   createdAt: string;
+  updatedAt: string;
+}
+
+type ReviewRequest = {
+  id: string;
+  reviewRequest: Review;
+  createdAt: string;
+  assignedTime: string;
   updatedAt: string;
 }

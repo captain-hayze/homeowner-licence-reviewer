@@ -8,25 +8,6 @@ import dayjs from "dayjs";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useMemo } from "react";
 
-// completedReviewsCount
-// : 
-// 0
-// pendingEarnings
-// : 
-// 0
-// pendingPayouts
-// : 
-// 0
-// recentAssignedReviews
-// : 
-// [{id: "309be618-6be5-432f-90f9-785ec72344e6",…}]
-// totalEarnings
-// : 
-// 0
-// totalPayouts
-// : 
-// 0
-
 type dashboardStats = {
   totalPayouts: number;
   totalEarnings: number;
@@ -41,7 +22,7 @@ export default function Dashboard() {
   const { formatCurrency } = useCurrency();
   const { data, isLoading } = useSWR("/license-review-requests/reviewer/dashboard", fetcher);
 
-  const recentReviews: Review[] = useMemo(() => {
+  const recentReviews: ReviewRequest[] = useMemo(() => {
     return data?.data?.recentAssignedReviews || [];
   }, [data]);
 
@@ -55,34 +36,56 @@ export default function Dashboard() {
     }
     }, [data]);
 
-  const columns: ColumnsType<Review> = [
+  const columns: ColumnsType<ReviewRequest> = [
     {
       title: "ID",
-      dataIndex: "homeOwnerProject",
+      dataIndex: "reviewRequest",
       key: "id",
-      render: (project: HomeOwnerProject) => project?.publicId,
+      render: (request) => request?.homeOwnerProject?.publicId,
     },
     {
       title: "Project Name",
-      dataIndex: "homeOwnerProject",
+      dataIndex: "reviewRequest",
       key: "name",
-      render: (project: HomeOwnerProject) => project?.name
+      render: (request) => request?.homeOwnerProject?.name
     },
     {
       title: "Status",
-      dataIndex: "status",
+      dataIndex: "reviewRequest",
       key: "status",
-      render: (s: string) => (
-        <Tag color={s === "COMPLETED" ? "green" : s === "IN_REVIEW" ? "orange" : "blue"}>{s}</Tag>
-      ),
+      render: (request) => {
+        const status = request?.status;
+        return (
+          <Tag color={status === "COMPLETED"
+            ? "green"
+            : status === "IN_REVIEW"
+              ? "orange"
+              : "blue"}
+            >
+            {status}
+          </Tag>
+        );
+      },
     },
     {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
       render: (date: string) => dayjs(date).format("YYYY-MM-DD HH:mm"),
+    },
+    {
+      title: "Assigned At",
+      dataIndex: "assignedTime",
+      key: "assignedTime",
+      render: (date: string) => dayjs(date).format("YYYY-MM-DD HH:mm"),
     }
-  ]
+  ];
+
+
+  const onRowClick = (record: ReviewRequest) => {
+    router.push(`/reviews/${record.reviewRequest.id}`);
+  }
+
   return (
       <div className="space-y-4">
         <Row gutter={16} className="mb-4">
@@ -109,7 +112,15 @@ export default function Dashboard() {
             columns={columns}
             loading={isLoading}
             rowKey="id"
+            rowClassName="cursor-pointer"
             pagination={false}
+            onRow={(data) => {
+              return {
+                onClick: () => {
+                  onRowClick(data);
+                },
+              };
+            }}
           />
         </Card>
       </div>
