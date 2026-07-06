@@ -1,9 +1,10 @@
 "use client"
 import React, { useState } from "react"
-import { Card, Modal, message, Input } from "antd";
+import { Card, Modal, message, Input, Button } from "antd";
 import useSWRMutation from "swr/mutation";
 import { handleMutation } from "@/utils/axios";
 import Image from "next/image";
+import PDFViewer from "./PDFViewer";
 
 interface DocumentCardProps extends ReviewDocument {
   reviewId: string;
@@ -70,25 +71,36 @@ export default function DocumentCard(props: DocumentCardProps) {
       </Card>
       <Modal
         open={open}
-        onOk={() => setOpen(false)}
         onCancel={() => {
           setOpen(false);
           setNote("");
           onClose?.()
         }}
-        okButtonProps={{
-          type: "primary",
-          disabled: isMutating,
-          loading: isMutating,
-          onClick: handleApprove,
-        }}
-        okText="Approve"
         width="90%"
+        footer={[
+          <Button key="cancel" onClick={() => {
+            setOpen(false);
+            setNote("");
+            onClose?.();
+          }}>Cancel</Button>,
+          <Button key="print" onClick={() => {
+            if (typeof window !== 'undefined') {
+              const isPdf = rest.documentUrl.toLowerCase().includes("pdf");
+              const searchParams = new URLSearchParams({
+                url: rest.documentUrl,
+                title: rest.planDocument.title,
+                type: isPdf ? "pdf" : "image",
+              });
+              window.open(`/print?${searchParams.toString()}`, '_blank', 'noopener,noreferrer,width=900,height=700');
+            }
+          }}>Print</Button>,
+          <Button key="approve" type="primary" disabled={isMutating} loading={isMutating} onClick={handleApprove}>Approve</Button>
+        ]}
       >
         <div className="h-[80vh] bg-gray-100 flex items-center justify-center">
           {rest.documentUrl.includes("pdf")
-            ? <div className="bg-[#F2F4F7] size-full flex items-center justify-center rounded">
-                <span className="font-bold text-2xl text-[#667085]">PDF</span>
+            ? <div className="h-full w-full">
+                <PDFViewer url={rest.documentUrl} />
               </div>
             : <div className="relative h-full w-full">
                 <Image
